@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/layout::head">
+</head>
+<body>
+<nav th:replace="/layout::navbar"></nav>
+<div class="container-fluid">
+    <div class="row text-center mt-5">
+        <h3>THÊM MỚI GIAO DỊCH</h3>
+    </div>
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+            <form action="/giao-dich/create" method="post" th:object="${giaoDich}" class="w-50 mt-3">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="giao-dich-id" class="form-label mt-2">ID</label>
+                        <input type="text" class="form-control" id="giao-dich-id" th:field="*{id}" required>
+                        <small th:if="${#fields.hasErrors('id')}" th:errors="*{id}">ID Error</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="giao-dich-kh" class="mt-2">Khách Hàng</label>
+                        <select class="form-select" id="giao-dich-kh" th:field="*{khachHang}" required>
+                            <option th:each="khachHang : ${listKhachHang}" th:value="${khachHang.id}"
+                                    th:text="${khachHang.id} + ' - ' + ${khachHang.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="giao-dich-dv" class="mt-2">Loại DV</label>
+                        <select class="form-select" id="giao-dich-dv" th:field="*{dichVu}" required>
+                            <option th:each="dichVu : ${listDichVu}" th:value="${dichVu.id}"
+                                    th:text="${dichVu.id} + ' - ' + ${dichVu.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="giao-dich-date" class="mt-2">Ngày GD</label>
+                        <input type="date" class="form-control" id="giao-dich-date"
+                               th:field="*{date}" required>
+                        <small th:if="${#fields.hasErrors('date')}" th:errors="*{date}">Date Error</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="giao-dich-cost" class="mt-2">Đơn giá</label>
+                        <div class=" input-group ">
+                            <input class="form-control bg-white" id="giao-dich-cost" type="number" th:field="*{cost}"
+                                   aria-describedby="basic-addon2" required>
+                            <span class="input-group-text"><span>VND/m</span><sup>2</sup></span></span>
+                        </div>
+                        <small th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}">Cost Error</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12 mb-3">
+                        <label for="giao-dich-area" class="mt-2">Diện tích</label>
+                        <div class=" input-group ">
+                            <input type="number" min="1" id="giao-dich-area" class="form-control"
+                                   aria-describedby="basic-addon2" required th:field="*{area}">
+                            <span class="input-group-text"><span>m</span><sup>2</sup></span></span>
+                        </div>
+                        <small th:if="${#fields.hasErrors('area')}" th:errors="*{area}">Area Error</small>
+                    </div>
+                </div>
+                <!--button-->
+                <div class="d-flex justify-content-center mt-3">
+                    <button type="button" class="btn btn-dark m-1">
+                        <a href="/giao-dich" class="text-decoration-none text-white">Back</a>
+                    </button>
+                    <button type="submit" class="btn btn-primary m-1" id="btn-create">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<footer th:replace="/layout::footer"></footer>
+</body>
+</html>

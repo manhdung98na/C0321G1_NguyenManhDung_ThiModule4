@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/layout::head">
+</head>
+<body>
+<nav th:replace="/layout::navbar"></nav>
+<div class="container-fluid m-0 p-0">
+    <div class="row mt-3">
+        <div class="col-12 text-center">
+            <h1>GIAO DỊCH</h1>
+        </div>
+    </div>
+    <!--create and search-->
+    <div class="row">
+        <div class="col-6">
+            <button class="btn btn-primary m-2">
+                <a href="/giao-dich/create" class="text-decoration-none text-white">Create</a>
+            </button>
+        </div>
+        <div class="col-6">
+            <form action="/giao-dich/search" method="get" class="w-100">
+                <div class="input-group" style="float: right; width: 50%">
+                    <input type="text" class="form-control mt-2 mb-2 ms-2" placeholder="Search here" id="input-search"
+                           name="input-search">
+                    <button class="btn btn-outline-secondary mt-2 mb-2 me-2" type="submit" id="button-addon2">Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!--giao-dich list-->
+    <div class="row" id="table-list-giao-dich">
+        <div class="col-12">
+            <table class="table table-hover" id="table-giao-dich">
+                <thead class="table-dark">
+                <th>Mã GD</th>
+                <th>Khách Hàng</th>
+                <th>Loại DV</th>
+                <th>Ngày GD</th>
+                <th>Đơn giá(VND/m2)</th>
+                <th>Diện tích(m2)</th>
+                <th></th>
+                </thead>
+                <tbody>
+                <tr th:each="giaoDich : ${listGiaoDich}">
+                    <td>
+                        <a th:href="@{/giao-dich/view/__${giaoDich.id}__}" th:text="${giaoDich.id}"
+                           class="text-dark" th:id="${'btn-' + giaoDich.id}"></a>
+                    </td>
+                    <td th:text="${giaoDich.khachHang.name}"></td>
+                    <td th:text="${giaoDich.dichVu.name}"></td>
+                    <td th:text="${giaoDich.date}"></td>
+                    <td th:text="${giaoDich.cost}"></td>
+                    <td th:text="${giaoDich.area}"></td>
+                    <td>
+                        <input type="checkbox" th:value="${giaoDich.id}">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!--Multiple delete-->
+            <button class="btn btn-danger d-flex position-absolute w-auto" style="right: 16px" id="btn-multi-delete"
+                    data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Delete
+            </button>
+        </div>
+    </div>
+
+    <!--Phân trang-->
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Pagination" class="d-flex justify-content-center">
+                <ul class="pagination">
+                    <li class="page-item" th:if="${listGiaoDich.hasPrevious()}">
+                        <a class="page-link" th:href="@{/giao-dich(page=${listGiaoDich.number - 1})}"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <span class="page-link"
+                              th:text="${listGiaoDich.number + 1} + '/'  + ${listGiaoDich.totalPages}"></span>
+                    </li>
+                    <li class="page-item" th:if="${listGiaoDich.hasNext()}">
+                        <a class="page-link" th:href="@{/giao-dich(page=${listGiaoDich.number + 1})}"
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <!--Hết phân trang-->
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+         data-bs-keyboard="false" aria-labelledby="staticBackdropLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete Confirm?</h5>
+                </div>
+                <div class="modal-body">
+                    Are you sure to delete?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btn-confirm-no">No
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn-confirm-yes" data-bs-dismiss="modal">Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Hết model-->
+
+    <!--Toast-->
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" th:if="${status}"
+         style="position: fixed; bottom: 15px; right: 15px; z-index: 1; min-width: 250px; width: auto">
+        <div class="toast-header bg-success">
+            <strong class="me-auto text-white" th:text="${status}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <span class="text-danger" th:text="${statusContent}"></span>
+        </div>
+    </div>
+</div>
+<footer th:replace="/layout::footer">
+</footer>
+</body>
+<script>
+    let idArray = [];
+    $(document).ready(function () {
+        $('.toast').toast('show');
+        // $('.toast').fadeOut(3000);
+
+        $('#btn-confirm-yes').click(function () {
+            if (idArray.length !== 0) {
+                $.ajax({
+                    url: "http://localhost:8080/api/v1/giao-dich/multi-delete",
+                    type: "DELETE",
+                    data: JSON.stringify({
+                        data: idArray
+                    }),
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    //xử lý khi thành công
+                    success: function () {
+                        for (let i = 0; i < idArray.length; i++) {
+                            let id = idArray[i];
+                            let idButton = "#btn-" + id;
+                            $(idButton).parent().parent().remove();
+                        }
+                        idArray.splice(0, idArray.length);
+                    },
+                    error: function () {
+                        console.log("Lỗi");
+                    }
+                });
+            }
+        });
+
+        $('#btn-confirm-no').click(function () {
+            idArray.splice(0, idArray.length);
+        });
+
+        $('#btn-multi-delete').click(function () {
+            $('#table-giao-dich input[type=checkbox]').each(function () {
+                if (jQuery(this).is(":checked")) {
+                    idArray.push($(this).val());
+                }
+            });
+        });
+    });
+</script>
+</html>
